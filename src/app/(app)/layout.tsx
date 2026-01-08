@@ -12,14 +12,14 @@ import { cn } from "@/lib/utils"
 import { useAdminAuth } from "@/hooks/user-admin-auth"
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Products", href: "/admin/products", icon: Package, badge: "234" },
-  { name: "Orders", href: "/admin/orders", icon: ShoppingCart, badge: "23" },
-  { name: "Customers", href: "/admin/customers", icon: Users, badge: "2.3K" },
-  { name: "Reviews", href: "/admin/reviews", icon: Star, badge: "48" },
-  { name: "Categories", href: "/admin/categories", icon: Tag },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Products", href: "/products", icon: Package, badge: "234" },
+  { name: "Orders", href: "/orders", icon: ShoppingCart, badge: "23" },
+  { name: "Customers", href: "/customers", icon: Users, badge: "2.3K" },
+  { name: "Reviews", href: "/reviews", icon: Star, badge: "48" },
+  { name: "Categories", href: "/categories", icon: Tag },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
