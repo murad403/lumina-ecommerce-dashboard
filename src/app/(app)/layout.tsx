@@ -3,13 +3,13 @@ import type React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { useAdminAuth } from "@/hooks/use-admin-auth"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
 import { LayoutDashboard, Package, ShoppingCart, Users, Star, Settings, BarChart3, Menu, X, Store, Bell, Tag, ChevronLeft, ChevronRight, LogOut, UserCog,} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useAdminAuth } from "@/hooks/user-admin-auth"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -29,19 +29,19 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  useEffect(() => {
-    if (!isAuthenticated && pathname !== "/admin/login") {
-      router.push("/admin/login")
-    }
-  }, [isAuthenticated, pathname, router])
+  // useEffect(() => {
+  //   if (!isAuthenticated && pathname !== "/sign-in") {
+  //     router.push("/sign-in")
+  //   }
+  // }, [isAuthenticated, pathname, router])
 
   const handleLogout = () => {
     logout()
-    router.push("/admin/login")
+    router.push("/sign-in")
   }
 
   // Don't render layout on login page
-  if (pathname === "/admin/login") {
+  if (pathname === "/sign-in") {
     return <>{children}</>
   }
 
