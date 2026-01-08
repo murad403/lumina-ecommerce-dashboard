@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -18,7 +18,7 @@ import { mockInventory } from "@/lib/admin-data"
 
 
 
-export default function AdminProducts() {
+const AdminProducts = () => {
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -244,7 +244,7 @@ export default function AdminProducts() {
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <Link href={`/product/${product.id}`}>
+                                                    <Link href={`/products/${product.id}`}>
                                                         <Button variant="ghost" size="icon">
                                                             <Eye className="h-4 w-4" />
                                                         </Button>
@@ -482,3 +482,5 @@ export default function AdminProducts() {
         </div>
     )
 }
+
+export default AdminProducts;
