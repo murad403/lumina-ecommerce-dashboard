@@ -245,13 +245,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/admin/profile" className="cursor-pointer">
+                    <Link href="/profile" className="cursor-pointer">
                       <UserCog className="mr-2 h-4 w-4" />
                       Profile Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/admin/settings" className="cursor-pointer">
+                    <Link href="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       Admin Settings
                     </Link>
