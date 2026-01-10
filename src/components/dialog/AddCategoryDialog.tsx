@@ -54,7 +54,7 @@ const AddCategoryDialog = ({ open, onOpenChange }: TProps) => {
                     <Button variant="outline" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button onClick  ={handleSubmit(onSubmit)}>
+                    <Button onClick={handleSubmit(onSubmit)}>
                         Create Category
                     </Button>
                 </DialogFooter>

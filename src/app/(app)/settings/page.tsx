@@ -6,31 +6,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import StoreInformation from "./StoreInformation"
 
 const AdminSettings = () => {
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Store Information</CardTitle>
-          <CardDescription>Update your store details and branding</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="store-name">Store Name</Label>
-            <Input id="store-name" defaultValue="Luxe Store" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="store-email">Contact Email</Label>
-            <Input id="store-email" type="email" defaultValue="contact@luxestore.com" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="store-description">Store Description</Label>
-            <Textarea id="store-description" rows={3} defaultValue="Premium luxury goods for the modern minimalist" />
-          </div>
-          <Button>Save Changes</Button>
-        </CardContent>
-      </Card>
+      <StoreInformation></StoreInformation>
 
       <Card>
         <CardHeader>
