@@ -210,12 +210,12 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className='border rounded-lg p-2'>
-                                                            <DropdownMenuItem className='flex gap-1 items-center cursor-pointer hover:bg-accent' onClick={() => handleEdit(product)}>
+                                                        <DropdownMenuContent align="end" className='border rounded-lg p-1'>
+                                                            <DropdownMenuItem className='flex gap-1 items-center cursor-pointer hover:bg-accent rounded-sm p-1' onClick={() => handleEdit(product)}>
                                                                 <Edit className="h-4 w-4 mr-2 text-gray-500" />
                                                                 Edit
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-destructive flex gap-1 items-center cursor-pointer hover:bg-accent">
+                                                            <DropdownMenuItem className="text-destructive flex gap-1 items-center cursor-pointer hover:bg-accent rounded-sm p-1">
                                                                 <Trash className="h-4 w-4 mr-2 text-gray-500" />
                                                                 Delete
                                                             </DropdownMenuItem>
