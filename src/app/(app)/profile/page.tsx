@@ -1,6 +1,6 @@
 "use client"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,21 +10,38 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, Lock, CheckCircle2, XCircle, Camera } from "lucide-react"
 import { useAdminAuth } from "@/hooks/user-admin-auth"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { passwordSchema, profileSchema } from "@/validation/validation"
+
+type ProfileFormData = z.infer<typeof profileSchema>
+type PasswordFormData = z.infer<typeof passwordSchema>
 
 const AdminProfilePage = () => {
   const { admin, updateProfile, changePassword } = useAdminAuth()
-
-  const [name, setName] = useState(admin?.name || "")
-  const [email, setEmail] = useState(admin?.email || "")
-  const [phone, setPhone] = useState(admin?.phone || "")
   const [avatar, setAvatar] = useState(admin?.avatar || "")
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-
-  // Password form state
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
+  // Profile Form
+  const { register: registerProfile, handleSubmit: handleSubmitProfile, formState: { errors: profileErrors }, setValue: setProfileValue,} = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema)
+  })
+  // Password Form
+  const { register: registerPassword, handleSubmit: handleSubmitPassword, formState: { errors: passwordErrors }, reset: resetPasswordForm,} = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+  })
+
+  // Set profile values when admin data is available
+  useEffect(() => {
+    if (admin) {
+      setProfileValue("name", admin.name || "")
+      setProfileValue("email", admin.email || "")
+      setProfileValue("phone", admin.phone || "")
+      setAvatar(admin.avatar || "")
+    }
+  }, [admin, setProfileValue])
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -37,34 +54,19 @@ const AdminProfilePage = () => {
     }
   }
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateProfile({ name, email, phone, avatar })
+  const onProfileSubmit = (data: ProfileFormData) => {
+    updateProfile({ ...data, avatar })
+    console.log(data, avatar)
     setProfileMessage({ type: "success", text: "Profile updated successfully!" })
     setTimeout(() => setProfileMessage(null), 3000)
   }
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onPasswordSubmit = async (data: PasswordFormData) => {
     setPasswordMessage(null)
-
-    if (newPassword !== confirmPassword) {
-      setPasswordMessage({ type: "error", text: "New passwords do not match" })
-      return
-    }
-
-    if (newPassword.length < 6) {
-      setPasswordMessage({ type: "error", text: "Password must be at least 6 characters" })
-      return
-    }
-
-    const success = await changePassword(currentPassword, newPassword)
-
+    const success = await changePassword(data.currentPassword, data.newPassword)
     if (success) {
       setPasswordMessage({ type: "success", text: "Password changed successfully!" })
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
+      resetPasswordForm()
     } else {
       setPasswordMessage({ type: "error", text: "Current password is incorrect" })
     }
@@ -136,15 +138,28 @@ const AdminProfilePage = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <form onSubmit={handleSubmitProfile(onProfileSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <Input
+                    id="name"
+                    {...registerProfile("name")}
+                  />
+                  {profileErrors.name && (
+                    <p className="text-xs text-red-500">{profileErrors.name.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Input
+                    id="email"
+                    type="email"
+                    {...registerProfile("email")}
+                  />
+                  {profileErrors.email && (
+                    <p className="text-xs text-red-500">{profileErrors.email.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -153,10 +168,11 @@ const AdminProfilePage = () => {
                     id="phone"
                     type="tel"
                     placeholder="+1 (555) 000-0000"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
+                    {...registerProfile("phone")}
                   />
+                  {profileErrors.phone && (
+                    <p className="text-xs text-red-500">{profileErrors.phone.message}</p>
+                  )}
                 </div>
 
                 <Button type="submit">Save Changes</Button>
@@ -183,17 +199,18 @@ const AdminProfilePage = () => {
                 </Alert>
               )}
 
-              <form onSubmit={handleChangePassword} className="space-y-4">
+              <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password">Current Password</Label>
                   <Input
                     id="current-password"
                     type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter current password"
-                    required
+                    {...registerPassword("currentPassword")}
                   />
+                  {passwordErrors.currentPassword && (
+                    <p className="text-xs text-red-500">{passwordErrors.currentPassword.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -201,11 +218,12 @@ const AdminProfilePage = () => {
                   <Input
                     id="new-password"
                     type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
-                    required
+                    {...registerPassword("newPassword")}
                   />
+                  {passwordErrors.newPassword && (
+                    <p className="text-xs text-red-500">{passwordErrors.newPassword.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -213,11 +231,12 @@ const AdminProfilePage = () => {
                   <Input
                     id="confirm-password"
                     type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
-                    required
+                    {...registerPassword("confirmPassword")}
                   />
+                  {passwordErrors.confirmPassword && (
+                    <p className="text-xs text-red-500">{passwordErrors.confirmPassword.message}</p>
+                  )}
                 </div>
 
                 <Button type="submit">Change Password</Button>
@@ -230,4 +249,4 @@ const AdminProfilePage = () => {
   )
 }
 
-export default AdminProfilePage;
+export default AdminProfilePage

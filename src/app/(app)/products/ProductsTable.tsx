@@ -1,77 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { mockInventory } from '@/lib/admin-data'
 import { products } from '@/lib/data'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
-import { AlertTriangle, Edit, Eye, MoreVertical, Plus, Trash, Upload, X } from 'lucide-react'
+import { AlertTriangle, Edit, Eye, MoreVertical, Trash } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import { useState } from 'react'
+import EditProductDialog from '@/components/dialog/EditProductDialog'
 
 type TProps = {
     searchQuery: string;
 }
 
-const editProductSchema = z.object({
-    name: z.string().min(1, "Product name is required"),
-    category: z.string().min(1, "Category is required"),
-    sku: z.string().min(1, "SKU is required"),
-    price: z.string().min(1, "Price is required"),
-    stock: z.string().min(1, "Stock is required"),
-    description: z.string().min(1, "Description is required"),
-})
-
-type EditProductFormData = z.infer<typeof editProductSchema>
-
 const ProductsTable = ({ searchQuery }: TProps) => {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-    const [selectedProduct, setSelectedProduct] = useState<any>(null)
-    const [variants, setVariants] = useState<Array<{ color: string; size: string; sku: string; stock: number; price?: number }>>([])
-    const [productImages, setProductImages] = useState<string[]>([])
-
-    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<EditProductFormData>({
-        resolver: zodResolver(editProductSchema),
-        defaultValues: {
-            name: "",
-            category: "",
-            price: "",
-            stock: "",
-            description: "",
-            sku: "",
-        },
-    })
-
-    const resetForm = () => {
-        reset()
-        setProductImages([])
-        setVariants([])
-        setSelectedProduct(null)
-    }
-
-    const addVariant = () => {
-        setVariants([...variants, { color: "", size: "", sku: "", stock: 0 }])
-    }
-
-    const removeVariant = (index: number) => {
-        setVariants(variants.filter((_, i) => i !== index))
-    }
-
-    const updateVariant = (index: number, field: string, value: string | number) => {
-        const newVariants = [...variants]
-        newVariants[index] = { ...newVariants[index], [field]: value }
-        setVariants(newVariants)
-    }
 
     const filteredProducts = products.filter(
         (product) =>
@@ -83,45 +28,6 @@ const ProductsTable = ({ searchQuery }: TProps) => {
         const inventory = mockInventory[productId]
         if (!inventory) return { stock: 0, status: "out_of_stock" }
         return { stock: inventory.stock, status: inventory.status }
-    }
-
-    const handleEdit = (product: any) => {
-        setSelectedProduct(product)
-        const stockInfo = getStockInfo(product.id)
-
-        // Set form values using setValue
-        setValue("name", product.name)
-        setValue("category", product.category)
-        setValue("price", product.price.toString())
-        setValue("stock", stockInfo.stock.toString())
-        setValue("description", product.description)
-        setValue("sku", mockInventory[product.id]?.sku || "")
-
-        setProductImages([product.image])
-        setIsEditDialogOpen(true)
-    }
-
-    const onSubmit = (data: EditProductFormData) => {
-        console.log("Updated product data:", data)
-        console.log("Product ID:", selectedProduct?.id)
-        console.log("Images:", productImages)
-        console.log("Variants:", variants)
-        // Handle product update logic here
-        setIsEditDialogOpen(false)
-        resetForm()
-    }
-
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files
-        if (!files) return
-
-        Array.from(files).forEach((file) => {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setProductImages((prev) => [...prev, reader.result as string])
-            }
-            reader.readAsDataURL(file)
-        })
     }
 
     return (
@@ -211,7 +117,7 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end" className='border rounded-lg p-1'>
-                                                            <DropdownMenuItem className='flex gap-1 items-center cursor-pointer hover:bg-accent rounded-sm p-1' onClick={() => handleEdit(product)}>
+                                                            <DropdownMenuItem onClick={() =>setIsEditDialogOpen(true)} className='flex gap-1 items-center cursor-pointer hover:bg-accent rounded-sm p-1'>
                                                                 <Edit className="h-4 w-4 mr-2 text-gray-500" />
                                                                 Edit
                                                             </DropdownMenuItem>
@@ -233,7 +139,9 @@ const ProductsTable = ({ searchQuery }: TProps) => {
             </Card>
 
             {/* Edit Product Dialog */}
-            <Dialog
+            <EditProductDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} />
+
+            {/* <Dialog
                 open={isEditDialogOpen}
                 onOpenChange={(open) => {
                     if (!open) {
@@ -458,7 +366,7 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                         </DialogFooter>
                     </form>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </div>
     )
 }
