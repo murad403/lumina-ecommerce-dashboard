@@ -15,42 +15,49 @@ import { AlertTriangle, Edit, Eye, MoreVertical, Plus, Trash, Upload, X } from '
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 
 type TProps = {
     searchQuery: string;
 }
 
-const ProductsTable = ({ searchQuery }: TProps) => {
+const editProductSchema = z.object({
+    name: z.string().min(1, "Product name is required"),
+    category: z.string().min(1, "Category is required"),
+    sku: z.string().min(1, "SKU is required"),
+    price: z.string().min(1, "Price is required"),
+    stock: z.string().min(1, "Stock is required"),
+    description: z.string().min(1, "Description is required"),
+})
 
-    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+type EditProductFormData = z.infer<typeof editProductSchema>
+
+const ProductsTable = ({ searchQuery }: TProps) => {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<any>(null)
-    const [formData, setFormData] = useState({
-        name: "",
-        category: "",
-        price: "",
-        stock: "",
-        description: "",
-        sku: "",
-    })
+    const [variants, setVariants] = useState<Array<{ color: string; size: string; sku: string; stock: number; price?: number }>>([])
     const [productImages, setProductImages] = useState<string[]>([])
-    const [variants, setVariants] = useState<
-        Array<{ color: string; size: string; sku: string; stock: number; price?: number }>
-    >([])
-    const resetForm = () => {
-        setFormData({
+
+    const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<EditProductFormData>({
+        resolver: zodResolver(editProductSchema),
+        defaultValues: {
             name: "",
             category: "",
             price: "",
             stock: "",
             description: "",
             sku: "",
-        })
+        },
+    })
+
+    const resetForm = () => {
+        reset()
         setProductImages([])
         setVariants([])
         setSelectedProduct(null)
     }
-
 
     const addVariant = () => {
         setVariants([...variants, { color: "", size: "", sku: "", stock: 0 }])
@@ -81,22 +88,44 @@ const ProductsTable = ({ searchQuery }: TProps) => {
     const handleEdit = (product: any) => {
         setSelectedProduct(product)
         const stockInfo = getStockInfo(product.id)
-        setFormData({
-            name: product.name,
-            category: product.category,
-            price: product.price.toString(),
-            stock: stockInfo.stock.toString(),
-            description: product.description,
-            sku: mockInventory[product.id]?.sku || "",
-        })
+
+        // Set form values using setValue
+        setValue("name", product.name)
+        setValue("category", product.category)
+        setValue("price", product.price.toString())
+        setValue("stock", stockInfo.stock.toString())
+        setValue("description", product.description)
+        setValue("sku", mockInventory[product.id]?.sku || "")
+
         setProductImages([product.image])
         setIsEditDialogOpen(true)
     }
 
+    const onSubmit = (data: EditProductFormData) => {
+        console.log("Updated product data:", data)
+        console.log("Product ID:", selectedProduct?.id)
+        console.log("Images:", productImages)
+        console.log("Variants:", variants)
+        // Handle product update logic here
+        setIsEditDialogOpen(false)
+        resetForm()
+    }
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files) return
+
+        Array.from(files).forEach((file) => {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setProductImages((prev) => [...prev, reader.result as string])
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+
     return (
         <div>
-
-            {/* products table */}
             <Card>
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
@@ -170,7 +199,7 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <Link href={`/product/${product.id}`}>
+                                                    <Link href={`/products/${product.id}`}>
                                                         <Button variant="ghost" size="icon">
                                                             <Eye className="h-4 w-4" />
                                                         </Button>
@@ -181,13 +210,13 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem className='flex gap-3' onClick={() => handleEdit(product)}>
-                                                                <Edit className="h-4 w-4 mr-2" />
+                                                        <DropdownMenuContent align="end" className='border rounded-lg p-2'>
+                                                            <DropdownMenuItem className='flex gap-1 items-center cursor-pointer hover:bg-accent' onClick={() => handleEdit(product)}>
+                                                                <Edit className="h-4 w-4 mr-2 text-gray-500" />
                                                                 Edit
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem className="text-destructive">
-                                                                <Trash className="h-4 w-4 mr-2" />
+                                                            <DropdownMenuItem className="text-destructive flex gap-1 items-center cursor-pointer hover:bg-accent">
+                                                                <Trash className="h-4 w-4 mr-2 text-gray-500" />
                                                                 Delete
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
@@ -203,13 +232,11 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                 </CardContent>
             </Card>
 
-
-            {/* Add / Edit Product Dialog */}
+            {/* Edit Product Dialog */}
             <Dialog
-                open={isAddDialogOpen || isEditDialogOpen}
+                open={isEditDialogOpen}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setIsAddDialogOpen(false)
                         setIsEditDialogOpen(false)
                         resetForm()
                     }
@@ -217,47 +244,60 @@ const ProductsTable = ({ searchQuery }: TProps) => {
             >
                 <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>{isEditDialogOpen ? "Edit Product" : "Add New Product"}</DialogTitle>
+                        <DialogTitle>Edit Product</DialogTitle>
                         <DialogDescription>
-                            {isEditDialogOpen ? "Update product information" : "Create a new product with variants and images"}
+                            Update product information
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-6 py-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6 py-4">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Product Name</Label>
                             <Input
                                 id="name"
                                 placeholder="Enter product name"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                {...register("name")}
                             />
+                            {errors.name && (
+                                <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+                            )}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="category">Category</Label>
-                                <Select
-                                    value={formData.category}
-                                    onValueChange={(value) => setFormData({ ...formData, category: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Timepieces">Timepieces</SelectItem>
-                                        <SelectItem value="Leather Goods">Leather Goods</SelectItem>
-                                        <SelectItem value="Audio">Audio</SelectItem>
-                                        <SelectItem value="Travel">Travel</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Controller
+                                    name="category"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Timepieces">Timepieces</SelectItem>
+                                                <SelectItem value="Leather Goods">Leather Goods</SelectItem>
+                                                <SelectItem value="Audio">Audio</SelectItem>
+                                                <SelectItem value="Travel">Travel</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
+                                {errors.category && (
+                                    <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="sku">SKU</Label>
                                 <Input
                                     id="sku"
                                     placeholder="e.g., EC-001"
-                                    value={formData.sku}
-                                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                                    {...register("sku")}
                                 />
+                                {errors.sku && (
+                                    <p className="text-xs text-red-500 mt-1">{errors.sku.message}</p>
+                                )}
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -267,9 +307,11 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                     id="price"
                                     type="number"
                                     placeholder="0.00"
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    {...register("price")}
                                 />
+                                {errors.price && (
+                                    <p className="text-xs text-red-500 mt-1">{errors.price.message}</p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="stock">Stock</Label>
@@ -277,9 +319,11 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                     id="stock"
                                     type="number"
                                     placeholder="0"
-                                    value={formData.stock}
-                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                    {...register("stock")}
                                 />
+                                {errors.stock && (
+                                    <p className="text-xs text-red-500 mt-1">{errors.stock.message}</p>
+                                )}
                             </div>
                         </div>
                         <div className="grid gap-2">
@@ -288,19 +332,31 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                 id="description"
                                 placeholder="Enter product description"
                                 rows={3}
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                {...register("description")}
                             />
+                            {errors.description && (
+                                <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>
+                            )}
                         </div>
 
                         <div className="grid gap-2">
                             <Label>Product Images</Label>
                             <div className="space-y-3">
-                                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                                    <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
-                                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB (multiple images allowed)</p>
-                                </div>
+                                <label htmlFor="image-upload" className="block">
+                                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                                        <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                        <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
+                                        <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB (multiple images allowed)</p>
+                                    </div>
+                                    <input
+                                        id="image-upload"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        className="hidden"
+                                    />
+                                </label>
                                 {productImages.length > 0 && (
                                     <div className="grid grid-cols-4 gap-3">
                                         {productImages.map((image, index) => (
@@ -309,12 +365,13 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                                 className="relative aspect-square rounded-lg overflow-hidden bg-muted border group"
                                             >
                                                 <Image
-                                                    src={image || "/placeholder.svg"}
+                                                    src={image}
                                                     alt={`Product ${index + 1}`}
                                                     fill
                                                     className="object-cover"
                                                 />
                                                 <button
+                                                    type="button"
                                                     onClick={() => setProductImages(productImages.filter((_, i) => i !== index))}
                                                     className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
@@ -383,32 +440,26 @@ const ProductsTable = ({ searchQuery }: TProps) => {
                                 </p>
                             )}
                         </div>
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setIsAddDialogOpen(false)
-                                setIsEditDialogOpen(false)
-                                resetForm()
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setIsAddDialogOpen(false)
-                                setIsEditDialogOpen(false)
-                                resetForm()
-                            }}
-                        >
-                            {isEditDialogOpen ? "Update Product" : "Create Product"}
-                        </Button>
-                    </DialogFooter>
+
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setIsEditDialogOpen(false)
+                                    resetForm()
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit">
+                                Update Product
+                            </Button>
+                        </DialogFooter>
+                    </form>
                 </DialogContent>
             </Dialog>
         </div>
-
     )
 }
 

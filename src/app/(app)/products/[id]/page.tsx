@@ -20,7 +20,7 @@ const Product = () => {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 pt-32 pb-24">
+      <div className="">
 
         {/* breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
