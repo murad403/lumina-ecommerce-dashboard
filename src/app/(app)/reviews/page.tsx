@@ -2,11 +2,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ArrowLeft, Search, Star, Trash, Check, X, MessageSquare } from "lucide-react"
+import { ArrowLeft, Search} from "lucide-react"
+import ReviewStats from "./ReviewStats"
+import ReviewCards from "./ReviewCards"
 
 const reviews = [
   {
@@ -100,9 +99,9 @@ const AdminReviews = () => {
     <div className="min-h-screen bg-background space-y-6">
       {/* Header */}
       <div className="border-b border-border/40 bg-card/50 backdrop-blur">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto">
           <div className="flex items-center gap-4">
-            <Link href="/admin">
+            <Link href="/">
               <Button variant="ghost" size="icon">
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -116,143 +115,43 @@ const AdminReviews = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Reviews</p>
-                <p className="text-2xl font-bold text-foreground">284</p>
-              </div>
-              <MessageSquare className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Average Rating</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-2xl font-bold text-foreground">4.8</p>
-                  <Star className="h-5 w-5 fill-primary text-primary" />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Pending Approval</p>
-                <p className="text-2xl font-bold text-foreground">12</p>
-              </div>
-              <Badge variant="outline">Pending</Badge>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold text-foreground">272</p>
-              </div>
-              <Badge className="bg-primary/10 text-primary">Active</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ReviewStats></ReviewStats>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Filters */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search reviews..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button variant={filterStatus === "all" ? "default" : "outline"} onClick={() => setFilterStatus("all")}>
-              All
-            </Button>
-            <Button
-              variant={filterStatus === "approved" ? "default" : "outline"}
-              onClick={() => setFilterStatus("approved")}
-            >
-              Approved
-            </Button>
-            <Button
-              variant={filterStatus === "pending" ? "default" : "outline"}
-              onClick={() => setFilterStatus("pending")}
-            >
-              Pending
-            </Button>
-          </div>
+
+      {/* Filters and search*/}
+      <div className="flex items-center gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search reviews..."
+            className="pl-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-
-        {/* Reviews Grid */}
-        <div className="grid gap-6">
-          {filteredReviews.map((review) => (
-            <Card key={review.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <Avatar>
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {review.customer
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-foreground">{review.customer}</p>
-                        <Badge variant={review.status === "approved" ? "default" : "secondary"}>{review.status}</Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{review.product}</p>
-                      <div className="flex items-center gap-1 mt-2">
-                        {Array.from({ length: review.rating }).map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                        ))}
-                        {Array.from({ length: 5 - review.rating }).map((_, i) => (
-                          <Star key={i} className="h-4 w-4 text-muted-foreground" />
-                        ))}
-                        <span className="text-sm text-muted-foreground ml-2">{review.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {review.status === "pending" && (
-                      <>
-                        <Button size="sm" variant="outline">
-                          <Check className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <X className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                      </>
-                    )}
-                    <Button size="sm" variant="ghost">
-                      <Trash className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-sm text-foreground leading-relaxed">{review.comment}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex gap-2">
+          <Button variant={filterStatus === "all" ? "default" : "outline"} onClick={() => setFilterStatus("all")}>
+            All
+          </Button>
+          <Button
+            variant={filterStatus === "approved" ? "default" : "outline"}
+            onClick={() => setFilterStatus("approved")}
+          >
+            Approved
+          </Button>
+          <Button
+            variant={filterStatus === "pending" ? "default" : "outline"}
+            onClick={() => setFilterStatus("pending")}
+          >
+            Pending
+          </Button>
         </div>
       </div>
+
+      {/* Reviews cart */}
+      <ReviewCards filteredReviews={filteredReviews}></ReviewCards>
+
     </div>
   )
 }

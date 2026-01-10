@@ -95,7 +95,7 @@ const AdminCustomers = () => {
     <div className="bg-background space-y-6">
       {/* Header */}
       <div className="border-b border-border/40 bg-card/50 backdrop-blur">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <div className="flex items-center gap-4">
             <Link href="/">
               <Button variant="ghost" size="icon">
