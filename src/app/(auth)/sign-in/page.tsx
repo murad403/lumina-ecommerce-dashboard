@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Lock, User, Store } from "lucide-react"
 import { useAdminAuth } from "@/hooks/user-admin-auth"
-import { useToast } from "@/hooks/user-toast"
 
 const AdminLoginPage = () => {
   const router = useRouter()
   const login = useAdminAuth((state) => state.login)
-  const { toast } = useToast()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,17 +22,10 @@ const AdminLoginPage = () => {
       const success = await login(username, password)
 
       if (success) {
-        toast({
-          title: "Welcome Back, Administrator",
-          description: "Access granted to the control center.",
-        })
+        
         router.push("/admin")
       } else {
-        toast({
-          title: "Access Denied",
-          description: "Invalid credentials. Please verify and try again.",
-          variant: "destructive",
-        })
+        
       }
       setIsLoading(false)
     }, 1500)
