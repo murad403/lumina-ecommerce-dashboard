@@ -46,9 +46,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Don't render if not authenticated
-  if (!isAuthenticated) {
-    return null
-  }
+  // if (!isAuthenticated) {
+  //   return null
+  // }
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,7 +62,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-border/40 bg-card px-6 pb-4">
           {/* Logo */}
           <div className="flex h-16 shrink-0 items-center border-b border-border/40 justify-between">
-            <Link href="/admin" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Store className="h-5 w-5 text-primary-foreground" />
               </div>
@@ -228,7 +228,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-x-3 px-2">
+                  <Button variant="ghost" className="flex items-center gap-x-3 px-2 group">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={admin?.avatar || "/placeholder.svg"} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
@@ -236,7 +236,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden lg:block text-left">
-                      <p className="text-sm font-medium text-foreground">{admin?.name || "Admin"}</p>
+                      <p className="text-sm font-medium text-foreground group-hover:text-black">{admin?.name || "Admin"}</p>
                       <p className="text-xs text-muted-foreground">{admin?.email || ""}</p>
                     </div>
                   </Button>

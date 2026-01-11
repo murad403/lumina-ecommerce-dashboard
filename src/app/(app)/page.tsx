@@ -7,6 +7,7 @@ import TopProducts from "./dashboard/TopProducts"
 import RecentActivity from "./dashboard/RecentActivity"
 
 const AdminDashboard = () => {
+  
   return (
     <div className="space-y-8">
       {/* Quick Stats */}

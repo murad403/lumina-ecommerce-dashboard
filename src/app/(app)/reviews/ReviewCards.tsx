@@ -57,7 +57,7 @@ const ReviewCards = ({ filteredReviews }: TProps) => {
                                     <>
                                         <Button size="sm" variant="outline">
                                             <Check className="h-4 w-4 mr-2" />
-                                            Approve
+                                            Approve 
                                         </Button>
                                         <Button size="sm" variant="outline">
                                             <X className="h-4 w-4 mr-2" />

@@ -1,11 +1,14 @@
+"use client"
+import AddProductDialog from '@/components/dialog/AddProductDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, Package, ShoppingCart, Star } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 
 const QuickActions = () => {
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     return (
         <Card className="lg:col-span-3 border-primary/20">
             <CardHeader>
@@ -16,12 +19,12 @@ const QuickActions = () => {
                 <CardDescription>Manage your store efficiently</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-                <Link href="/products/new">
-                    <Button className="w-full justify-start bg-transparent" variant="outline">
-                        <Package className="mr-2 h-4 w-4" />
-                        Add New Product
-                    </Button>
-                </Link>
+
+                <Button onClick={() => { setIsAddDialogOpen(true) }} className="w-full justify-start bg-transparent" variant="outline">
+                    <Package className="mr-2 h-4 w-4" />
+                    Add New Product
+                </Button>
+
                 <Link href="/orders?status=pending">
                     <Button className="w-full justify-start bg-transparent" variant="outline">
                         <ShoppingCart className="mr-2 h-4 w-4" />
@@ -50,6 +53,8 @@ const QuickActions = () => {
                     </Button>
                 </Link>
             </CardContent>
+
+            <AddProductDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}></AddProductDialog>
         </Card>
     )
 }

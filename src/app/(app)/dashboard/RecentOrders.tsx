@@ -14,7 +14,7 @@ const RecentOrders = () => {
                         <CardTitle>Recent Orders</CardTitle>
                         <CardDescription>Latest customer orders</CardDescription>
                     </div>
-                    <Link href="/admin/orders">
+                    <Link href="/orders">
                         <Button variant="ghost" size="sm">
                             View All
                             <ArrowUpRight className="ml-2 h-4 w-4" />

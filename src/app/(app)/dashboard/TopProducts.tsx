@@ -13,7 +13,7 @@ const TopProducts = () => {
                         <CardTitle>Top Products</CardTitle>
                         <CardDescription>Best selling items this month</CardDescription>
                     </div>
-                    <Link href="/admin/products">
+                    <Link href="/products">
                         <Button variant="ghost" size="sm">
                             View All
                             <ArrowUpRight className="ml-2 h-4 w-4" />

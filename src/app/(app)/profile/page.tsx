@@ -39,7 +39,6 @@ const AdminProfilePage = () => {
       setProfileValue("name", admin.name || "")
       setProfileValue("email", admin.email || "")
       setProfileValue("phone", admin.phone || "")
-      setAvatar(admin.avatar || "")
     }
   }, [admin, setProfileValue])
 
