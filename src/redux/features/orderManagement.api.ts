@@ -16,7 +16,7 @@ const orderManagementApi = baseApi.injectEndpoints({
                 }
             }
         }),
-        
+
         orderDetails: builder.query ({
             query: (order_id) =>{
                 return {
@@ -24,8 +24,18 @@ const orderManagementApi = baseApi.injectEndpoints({
                     method: 'GET'
                 }
             }
+        }),
+        
+        updateOrderStatus: builder.mutation({
+            query: ({order_id, data}) =>{
+                return {
+                    url: `/orders/admin/orders/${order_id}/status/`,
+                    method: 'PATCH',
+                    body: data
+                }
+            }
         })
     })
 })
 
-export const { useAllOrdersQuery, useOrderDetailsQuery } = orderManagementApi;
+export const { useAllOrdersQuery, useOrderDetailsQuery, useUpdateOrderStatusMutation } = orderManagementApi;
